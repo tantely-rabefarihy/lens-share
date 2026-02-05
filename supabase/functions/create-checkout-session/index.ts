@@ -10,6 +10,7 @@ interface CheckoutRequest {
   booking_id: string;
   gear_name: string;
   total_price: number;
+  frontendOrigin: string;
 }
 
 Deno.serve(async (req: Request) => {
@@ -34,9 +35,9 @@ Deno.serve(async (req: Request) => {
     }
 
     const requestBody: CheckoutRequest = await req.json();
-    const { booking_id, gear_name, total_price } = requestBody;
+    const { booking_id, gear_name, total_price, frontendOrigin } = requestBody;
 
-    if (!booking_id || !total_price) {
+    if (!booking_id || !total_price || !frontendOrigin) {
       return new Response(
         JSON.stringify({ error: "Missing required fields" }),
         {
@@ -46,28 +47,20 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    const params = new URLSearchParams({
-      payment_method_types: "card",
-      line_items: JSON.stringify([
-        {
-          price_data: {
-            currency: "usd",
-            product_data: {
-              name: gear_name || "Camera Equipment Rental",
-              description: `Booking ID: ${booking_id}`,
-            },
-            unit_amount: Math.round(total_price * 100),
-          },
-          quantity: 1,
-        },
-      ]),
-      mode: "payment",
-      success_url: `${new URL(req.url).origin}?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: new URL(req.url).origin,
-      metadata: {
-        booking_id,
-      },
-    });
+    const successUrl = new URL(frontendOrigin);
+    successUrl.searchParams.append('session_id', '{CHECKOUT_SESSION_ID}');
+
+    const params = new URLSearchParams();
+    params.append('payment_method_types[]', 'card');
+    params.append('line_items[0][price_data][currency]', 'usd');
+    params.append('line_items[0][price_data][product_data][name]', gear_name || 'Camera Equipment Rental');
+    params.append('line_items[0][price_data][product_data][description]', `Booking ID: ${booking_id}`);
+    params.append('line_items[0][price_data][unit_amount]', Math.round(total_price * 100).toString());
+    params.append('line_items[0][quantity]', '1');
+    params.append('mode', 'payment');
+    params.append('success_url', successUrl.toString());
+    params.append('cancel_url', frontendOrigin);
+    params.append('metadata[booking_id]', booking_id);
 
     const stripeResponse = await fetch("https://api.stripe.com/v1/checkout/sessions", {
       method: "POST",

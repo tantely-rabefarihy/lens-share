@@ -46,9 +46,9 @@ export function GearDetails({ gear, onClose }: GearDetailsProps) {
   return (
     <>
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-        <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white rounded-2xl">
-          <div className="sticky top-0 flex justify-between items-center p-6 border-b bg-white">
-            <h2 className="text-2xl font-bold text-gray-900">{gear.name}</h2>
+        <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white rounded-xl sm:rounded-2xl">
+          <div className="sticky top-0 flex justify-between items-center p-4 sm:p-6 border-b bg-white gap-2">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 line-clamp-2">{gear.name}</h2>
             <button
               onClick={onClose}
               className="p-2 hover:bg-gray-100 rounded-full transition"
@@ -57,10 +57,10 @@ export function GearDetails({ gear, onClose }: GearDetailsProps) {
             </button>
           </div>
 
-          <div className="p-6 space-y-6">
+          <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
             <div>
               {gear.gear_images.length > 0 && (
-                <div className="relative bg-gray-200 rounded-lg overflow-hidden mb-4 h-96">
+                <div className="relative bg-gray-200 rounded-lg overflow-hidden mb-4 h-48 sm:h-96">
                   <img
                     src={gear.gear_images[currentImageIndex].image_url}
                     alt={gear.name}
@@ -92,14 +92,14 @@ export function GearDetails({ gear, onClose }: GearDetailsProps) {
             <div>
               <p className="text-gray-600 mb-4">{gear.description}</p>
 
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                <div className="p-4 bg-blue-50 rounded-lg">
-                  <p className="text-sm text-gray-600 mb-1">Category</p>
-                  <p className="font-semibold text-gray-900">{gear.category}</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
+                <div className="p-3 sm:p-4 bg-blue-50 rounded-lg">
+                  <p className="text-xs sm:text-sm text-gray-600 mb-1">Category</p>
+                  <p className="font-semibold text-sm sm:text-base text-gray-900">{gear.category}</p>
                 </div>
-                <div className="p-4 bg-green-50 rounded-lg">
-                  <p className="text-sm text-gray-600 mb-1">Condition</p>
-                  <p className="font-semibold text-gray-900">{gear.condition}</p>
+                <div className="p-3 sm:p-4 bg-green-50 rounded-lg">
+                  <p className="text-xs sm:text-sm text-gray-600 mb-1">Condition</p>
+                  <p className="font-semibold text-sm sm:text-base text-gray-900">{gear.condition}</p>
                 </div>
               </div>
             </div>
@@ -112,19 +112,19 @@ export function GearDetails({ gear, onClose }: GearDetailsProps) {
             </div>
 
             {pricing && !isOwner && (
-              <div className="border-t pt-6">
-                <h3 className="font-bold text-gray-900 mb-4">Rental Pricing</h3>
+              <div className="border-t pt-4 sm:pt-6">
+                <h3 className="font-bold text-base sm:text-lg text-gray-900 mb-3 sm:mb-4">Rental Pricing</h3>
 
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                  <div className="p-4 border-2 border-blue-300 rounded-lg bg-blue-50">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
+                  <div className="p-3 sm:p-4 border-2 border-blue-300 rounded-lg bg-blue-50">
                     <Clock className="w-5 h-5 text-blue-600 mb-2" />
-                    <p className="text-sm text-gray-600">Per Hour</p>
-                    <p className="text-2xl font-bold text-gray-900">${pricing.hourly_rate}</p>
+                    <p className="text-xs sm:text-sm text-gray-600">Per Hour</p>
+                    <p className="text-xl sm:text-2xl font-bold text-gray-900">${pricing.hourly_rate}</p>
                   </div>
-                  <div className="p-4 border-2 border-blue-300 rounded-lg bg-blue-50">
+                  <div className="p-3 sm:p-4 border-2 border-blue-300 rounded-lg bg-blue-50">
                     <Calendar className="w-5 h-5 text-blue-600 mb-2" />
-                    <p className="text-sm text-gray-600">Per Day</p>
-                    <p className="text-2xl font-bold text-gray-900">${pricing.daily_rate}</p>
+                    <p className="text-xs sm:text-sm text-gray-600">Per Day</p>
+                    <p className="text-xl sm:text-2xl font-bold text-gray-900">${pricing.daily_rate}</p>
                   </div>
                 </div>
 

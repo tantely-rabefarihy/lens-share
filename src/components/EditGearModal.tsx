@@ -84,9 +84,9 @@ export function EditGearModal({ gear, onClose, onSuccess }: EditGearModalProps) 
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-        <div className="sticky top-0 flex justify-between items-center p-6 border-b bg-white">
-          <h2 className="text-2xl font-bold text-gray-900">Edit Equipment</h2>
+      <div className="bg-white rounded-xl sm:rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+        <div className="sticky top-0 flex justify-between items-center p-4 sm:p-6 border-b bg-white gap-2">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 line-clamp-1">Edit Equipment</h2>
           <button
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-full transition"
@@ -95,7 +95,7 @@ export function EditGearModal({ gear, onClose, onSuccess }: EditGearModalProps) 
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4">
           {error && (
             <div className="p-4 bg-red-50 border border-red-200 rounded-lg flex gap-3 text-red-700 text-sm">
               <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
@@ -170,7 +170,7 @@ export function EditGearModal({ gear, onClose, onSuccess }: EditGearModalProps) 
             </select>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label htmlFor="hourlyRate" className="block text-sm font-medium text-gray-700 mb-1">
                 Hourly Rate ($) *

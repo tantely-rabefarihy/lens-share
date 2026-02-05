@@ -24,6 +24,17 @@ export function BookingModal({ gear, pricing, onClose }: BookingModalProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  const getMinDateTime = () => {
+    const now = new Date();
+    now.setMinutes(now.getMinutes() + 30);
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  };
+
   const rate = rentalType === 'hourly' ? pricing.hourly_rate : pricing.daily_rate;
   const totalPrice = rate * quantity;
 
@@ -71,12 +82,16 @@ export function BookingModal({ gear, pricing, onClose }: BookingModalProps) {
 
       if (bookingError) throw bookingError;
 
-      // TODO: Integrate with Stripe
-      // For now, we'll redirect to Stripe checkout
       if (booking) {
         const stripeCheckoutUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-checkout-session`;
+        const frontendOrigin = window.location.origin;
+
+        console.log('Starting payment process for booking:', booking.id);
+        console.log('Stripe URL:', stripeCheckoutUrl);
+        console.log('VITE_SUPABASE_URL:', import.meta.env.VITE_SUPABASE_URL);
 
         try {
+          console.log('Sending request to create checkout session...');
           const response = await fetch(stripeCheckoutUrl, {
             method: 'POST',
             headers: {
@@ -87,20 +102,31 @@ export function BookingModal({ gear, pricing, onClose }: BookingModalProps) {
               booking_id: booking.id,
               gear_name: gear.name,
               total_price: totalPrice,
+              frontendOrigin,
             }),
           });
 
+          console.log('Response received:', response.status, response.statusText);
+
           if (!response.ok) {
-            throw new Error('Failed to create checkout session');
+            const errorData = await response.json();
+            console.error('Error response:', errorData);
+            throw new Error(errorData.error || 'Failed to create checkout session');
           }
 
-          const { url } = await response.json();
-          if (url) {
-            window.location.href = url;
+          const data = await response.json();
+          console.log('Response data:', data);
+
+          if (data.url) {
+            console.log('Redirecting to Stripe checkout:', data.url);
+            window.location.href = data.url;
+          } else {
+            throw new Error('No checkout URL received from payment system');
           }
         } catch (stripeError) {
           console.error('Stripe error:', stripeError);
-          setError('Payment system unavailable. Booking created but payment failed.');
+          setLoading(false);
+          setError(stripeError instanceof Error ? stripeError.message : 'Payment system unavailable. Booking created but payment failed.');
         }
       }
     } catch (err) {
@@ -112,9 +138,9 @@ export function BookingModal({ gear, pricing, onClose }: BookingModalProps) {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl max-w-md w-full p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">Book {gear.name}</h2>
+      <div className="bg-white rounded-xl sm:rounded-2xl max-w-md w-full p-4 sm:p-6">
+        <div className="flex justify-between items-center mb-4 sm:mb-6 gap-2">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 line-clamp-2">Book {gear.name}</h2>
           <button
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-full transition"
@@ -176,6 +202,7 @@ export function BookingModal({ gear, pricing, onClose }: BookingModalProps) {
               type="datetime-local"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
+              min={getMinDateTime()}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
