@@ -32,28 +32,28 @@ export function AuthPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <div className="text-center mb-6 sm:mb-8">
-          <div className="flex justify-center mb-3 sm:mb-4">
-            <div className="p-2 sm:p-3 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full shadow-lg">
-              <Camera className="w-6 sm:w-8 h-6 sm:h-8 text-white" />
+        <div className="text-center mb-8">
+          <div className="flex justify-center mb-4">
+            <div className="p-3 bg-blue-500 rounded-full">
+              <Camera className="w-8 h-8 text-white" />
             </div>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 sm:mb-2">LensShare</h1>
-          <p className="text-sm sm:text-base text-gray-600">Rent and share photography equipment</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">LensShare</h1>
+          <p className="text-gray-600">Rent and share photography equipment</p>
         </div>
 
-        <div className="backdrop-blur-md bg-glass border border-white border-opacity-20 rounded-xl sm:rounded-2xl p-6 sm:p-8 shadow-glass">
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">
+        <div className="backdrop-blur-md bg-glass border border-white border-opacity-20 rounded-2xl p-8 shadow-glass">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">
             {isSignUp ? 'Create Account' : 'Sign In'}
           </h2>
 
           {error && (
-            <div className="mb-4 p-3 sm:p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-xs sm:text-sm">
+            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
               {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
             {isSignUp && (
               <div>
                 <label htmlFor="displayName" className="block text-sm font-medium text-gray-700 mb-1">
@@ -104,18 +104,18 @@ export function AuthPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2.5 sm:py-3 px-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-sm sm:text-base font-semibold rounded-lg hover:from-blue-600 hover:to-blue-700 transition duration-200 disabled:opacity-50"
+              className="w-full py-2 px-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-lg hover:from-blue-600 hover:to-blue-700 transition duration-200 disabled:opacity-50"
             >
               {loading ? 'Loading...' : isSignUp ? 'Create Account' : 'Sign In'}
             </button>
           </form>
 
-          <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-white border-opacity-20">
-            <p className="text-center text-gray-700 text-sm sm:text-base">
+          <div className="mt-6 pt-6 border-t border-white border-opacity-20">
+            <p className="text-center text-gray-700">
               {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
               <button
                 onClick={() => setIsSignUp(!isSignUp)}
-                className="text-blue-600 hover:text-blue-700 font-semibold text-sm sm:text-base"
+                className="text-blue-600 hover:text-blue-700 font-semibold"
               >
                 {isSignUp ? 'Sign In' : 'Sign Up'}
               </button>

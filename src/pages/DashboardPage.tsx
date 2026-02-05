@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
-import { Plus, LogOut, Menu, X, Camera } from 'lucide-react';
+import { Plus, LogOut, Menu, X } from 'lucide-react';
 import { GearBrowser } from '../components/GearBrowser';
 import { GearManagement } from '../components/GearManagement';
-import { LocationPermissionModal } from '../components/LocationPermissionModal';
 
 type Tab = 'browse' | 'manage';
 
@@ -13,7 +12,6 @@ export function DashboardPage() {
   const [activeTab, setActiveTab] = useState<Tab>('browse');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profile, setProfile] = useState<any>(null);
-  const [showLocationModal, setShowLocationModal] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -29,10 +27,6 @@ export function DashboardPage() {
       .eq('id', user.id)
       .maybeSingle();
     setProfile(data);
-
-    if (data && !data.latitude && !data.longitude) {
-      setShowLocationModal(true);
-    }
   };
 
   return (
@@ -41,8 +35,8 @@ export function DashboardPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-2">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
-                <Camera className="w-6 h-6 text-white" />
+              <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center">
+                <span className="text-white font-bold">L</span>
               </div>
               <span className="hidden sm:inline text-xl font-bold text-gray-900">LensShare</span>
             </div>
@@ -126,14 +120,10 @@ export function DashboardPage() {
         </div>
       </nav>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {activeTab === 'browse' && <GearBrowser />}
         {activeTab === 'manage' && <GearManagement />}
       </main>
-
-      {showLocationModal && (
-        <LocationPermissionModal onClose={() => setShowLocationModal(false)} />
-      )}
     </div>
   );
 }

@@ -4,7 +4,6 @@ import { supabase } from '../lib/supabase';
 import { Plus, Edit2, Trash2 } from 'lucide-react';
 import { AddGearModal } from './AddGearModal';
 import { EditGearModal } from './EditGearModal';
-import { DeleteGearModal } from './DeleteGearModal';
 
 interface Gear {
   id: string;
@@ -23,7 +22,6 @@ export function GearManagement() {
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingGear, setEditingGear] = useState<Gear | null>(null);
-  const [deletingGear, setDeletingGear] = useState<Gear | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -56,13 +54,14 @@ export function GearManagement() {
     }
   };
 
-  const handleDeleteClick = (gear: Gear) => {
-    setDeletingGear(gear);
-  };
+  const handleDelete = async (gearId: string) => {
+    if (!confirm('Are you sure you want to delete this equipment?')) return;
 
-  const handleDeleteSuccess = () => {
-    if (deletingGear) {
-      setGear((prev) => prev.filter((g) => g.id !== deletingGear.id));
+    try {
+      await supabase.from('gear').delete().eq('id', gearId);
+      setGear((prev) => prev.filter((g) => g.id !== gearId));
+    } catch (error) {
+      console.error('Error deleting gear:', error);
     }
   };
 
@@ -89,11 +88,11 @@ export function GearManagement() {
 
   return (
     <>
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Manage Equipment</h1>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-900">Manage Equipment</h1>
         <button
           onClick={() => setShowAddModal(true)}
-          className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 sm:px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-lg hover:from-blue-600 hover:to-blue-700 transition"
+          className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-lg hover:from-blue-600 hover:to-blue-700 transition"
         >
           <Plus className="w-5 h-5" />
           Add Equipment
@@ -122,17 +121,7 @@ export function GearManagement() {
                 key={g.id}
                 className="backdrop-blur-md bg-glass border border-white border-opacity-20 rounded-xl p-4 shadow-glass"
               >
-                <div className="flex flex-col sm:flex-row gap-4">
-                  {primaryImage && (
-                    <div className="sm:hidden w-full h-48 rounded-lg overflow-hidden">
-                      <img
-                        src={primaryImage}
-                        alt={g.name}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  )}
-
+                <div className="flex gap-4">
                   {primaryImage && (
                     <div className="hidden sm:block w-24 h-24 rounded-lg overflow-hidden flex-shrink-0">
                       <img
@@ -143,19 +132,11 @@ export function GearManagement() {
                     </div>
                   )}
 
-                  <div className="flex-1 flex flex-col">
-                    <div className="flex-1">
-                      <h3 className="text-lg font-bold text-gray-900 mb-1">{g.name}</h3>
-                      <p className="text-gray-600 text-sm mb-3 line-clamp-2">{g.description}</p>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-bold text-gray-900 mb-1">{g.name}</h3>
+                    <p className="text-gray-600 text-sm mb-3 line-clamp-2">{g.description}</p>
 
-                      {pricing && (
-                        <p className="text-sm text-gray-600 mb-3">
-                          ${pricing.hourly_rate}/hr • ${pricing.daily_rate}/day
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="flex flex-wrap gap-2 mt-auto pt-3 sm:pt-4">
+                    <div className="flex flex-wrap gap-2 mb-3">
                       <span className="inline-block px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
                         {g.category}
                       </span>
@@ -172,38 +153,36 @@ export function GearManagement() {
                         {g.available ? 'Available' : 'Unavailable'}
                       </span>
                     </div>
+
+                    {pricing && (
+                      <p className="text-sm text-gray-600 mb-3">
+                        ${pricing.hourly_rate}/hr • ${pricing.daily_rate}/day
+                      </p>
+                    )}
                   </div>
 
-                  <div className="flex flex-col gap-2 w-full sm:w-auto sm:justify-end">
+                  <div className="flex flex-col gap-2 justify-center">
+                    <button
+                      onClick={() => setEditingGear(g)}
+                      className="p-2 hover:bg-white hover:bg-opacity-30 rounded-lg transition"
+                      title="Edit"
+                    >
+                      <Edit2 className="w-5 h-5 text-blue-600" />
+                    </button>
                     <button
                       onClick={() => handleToggleAvailability(g.id, g.available)}
-                      className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-white transition w-full sm:w-auto ${
-                        g.available
-                          ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700'
-                          : 'bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700'
-                      }`}
+                      className="px-3 py-1 text-xs font-medium rounded-lg transition"
                       title={g.available ? 'Mark unavailable' : 'Mark available'}
                     >
-                      <span className="text-sm">{g.available ? '✓ Available' : '✗ Unavailable'}</span>
+                      {g.available ? 'Available' : 'Unavailable'}
                     </button>
-                    <div className="flex gap-2 w-full sm:w-auto">
-                      <button
-                        onClick={() => setEditingGear(g)}
-                        className="flex-1 sm:flex-none px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 font-semibold rounded-lg transition flex items-center justify-center gap-2"
-                        title="Edit"
-                      >
-                        <Edit2 className="w-4 h-4" />
-                        <span className="text-sm">Edit</span>
-                      </button>
-                      <button
-                        onClick={() => handleDeleteClick(g)}
-                        className="flex-1 sm:flex-none px-4 py-2 bg-red-100 hover:bg-red-200 text-red-700 font-semibold rounded-lg transition flex items-center justify-center gap-2"
-                        title="Delete"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                        <span className="text-sm">Delete</span>
-                      </button>
-                    </div>
+                    <button
+                      onClick={() => handleDelete(g.id)}
+                      className="p-2 hover:bg-red-100 rounded-lg transition"
+                      title="Delete"
+                    >
+                      <Trash2 className="w-5 h-5 text-red-600" />
+                    </button>
                   </div>
                 </div>
               </div>
@@ -218,14 +197,6 @@ export function GearManagement() {
           gear={editingGear}
           onClose={() => setEditingGear(null)}
           onSuccess={loadGear}
-        />
-      )}
-      {deletingGear && (
-        <DeleteGearModal
-          gearId={deletingGear.id}
-          gearName={deletingGear.name}
-          onClose={() => setDeletingGear(null)}
-          onSuccess={handleDeleteSuccess}
         />
       )}
     </>
